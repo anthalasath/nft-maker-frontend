@@ -67,7 +67,7 @@ class App extends React.Component<{}, AppState> {
   render() {
     const provider = new ethers.providers.Web3Provider(window.ethereum)
     const element = this.state.signer ?
-      <BreedableNFTForm></BreedableNFTForm> :
+      <BreedableNFTForm signer={this.state.signer}></BreedableNFTForm> :
       <ConnectWalletButton provider={provider} handleWalletConnected={signer => this.handleWalletConnected(signer)}></ConnectWalletButton>
     return <CenteredPage element={element}></CenteredPage>
   }
