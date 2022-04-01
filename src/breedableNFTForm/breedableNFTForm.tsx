@@ -2,8 +2,8 @@ import { Alert, Button, Paper, Stack, TextField } from "@mui/material"
 import React from 'react';
 import { BigNumber, Signer, ContractFactory } from "ethers";
 import AddBoxIcon from '@mui/icons-material/AddBox';
-import { PicturePartCategoryStruct } from "../../nft-maker/typechain-types/contracts/BreedableNFT";
-import BreedableNFTArtifact from "../../nft-maker/artifacts/contracts/BreedableNFT.sol/BreedableNFT.json"
+import { PicturePartCategoryStruct } from "../nft-maker/typechain-types/contracts/BreedableNFT";
+import BreedableNFTArtifact from "../nft-maker/artifacts/contracts/BreedableNFT.sol/BreedableNFT.json"
 
 interface PicturePartCategoryViewProps {
     picturePart: PicturePartCategoryStruct
