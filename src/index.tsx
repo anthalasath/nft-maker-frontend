@@ -1,19 +1,23 @@
-import { Button, Divider, Grid, Stack, TextField } from '@mui/material';
+import { Button, Divider, Grid, Paper, Stack, TextField } from '@mui/material';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { BigNumber } from "ethers";
 import AddBoxIcon from '@mui/icons-material/AddBox';
+import { PicturePartCategoryStruct } from "../nft-maker/typechain-types/contracts/BreedableNFT";
 
-interface PicturePartCategoryViewState {
-  name: string
-  posX: number
-  posY: number
-  pictureUris: string[]
+interface PicturePartCategoryViewProps {
+  picturePart: PicturePartCategoryStruct
+  handleNameChange: (value: string) => void
+  handlePosXChange: (value: number) => void
+  handlePosYChange: (value: number) => void
 }
 
-class PicturePartCategoryView extends React.Component<{}, PicturePartCategoryViewState> {
-
-
+function PicturePartCategoryView(props: PicturePartCategoryViewProps) {
+  return <Paper>
+    <TextField label="name" onChange={e => props.handleNameChange(e.target.value)}></TextField>
+    <TextField label="posX" onChange={e => props.handlePosXChange(Number.parseInt(e.target.value))}></TextField>
+    <TextField label="posY" onChange={e => props.handlePosYChange(Number.parseInt(e.target.value))}></TextField>
+  </Paper>
 }
 
 interface BreedableNFTFormState {
@@ -22,13 +26,16 @@ interface BreedableNFTFormState {
   breedingFeeInWei?: BigNumber
   fatherGeneChance?: number
   motherGeneChance?: number
+  categories: PicturePartCategoryStruct[]
 }
 
 class BreedableNFTForm extends React.Component<{}, BreedableNFTFormState> {
 
   constructor(props: {}) {
     super(props);
-    this.state = {}
+    this.state = {
+      categories: []
+    }
   }
 
   handleNameChange(value: string) {
@@ -61,8 +68,38 @@ class BreedableNFTForm extends React.Component<{}, BreedableNFTFormState> {
     });
   }
 
+  handleCategoryNameChange(index: number, value: string) {
+    this.handleCategoryChange(index, cat => {
+      cat.name = value;
+    });
+  }
+
+  handleCategoryPosXChange(index: number, value: number) {
+    this.handleCategoryChange(index, cat => {
+      cat.position.x = value;
+    });
+  }
+
+  handleCategoryPosYChange(index: number, value: number) {
+    this.handleCategoryChange(index, cat => {
+      cat.position.y = value;
+    });
+  }
+
+  handleCategoryChange(index: number, f: (value: PicturePartCategoryStruct) => void) {
+    const cat = this.state.categories[index];
+    f(cat);
+    this.setState({ categories: this.state.categories })
+  }
+
   handleAddCategoryClick() {
-    alert("Clicked");
+    const categories = this.state.categories;
+    categories.push({
+      name: "",
+      position: { x: 0, y: 0 },
+      picturesUris: []
+    });
+    this.setState({ categories: categories });
   }
 
   render() {
@@ -77,6 +114,12 @@ class BreedableNFTForm extends React.Component<{}, BreedableNFTFormState> {
       </TextField>
       <TextField label="motherGeneChance" onChange={e => this.handleMotherGeneChanceChange(e.target.value)}>
       </TextField>
+      {this.state.categories.map((cat, index) => <PicturePartCategoryView
+        picturePart={cat}
+        handleNameChange={value => this.handleCategoryNameChange(index, value)}
+        handlePosXChange={value => this.handleCategoryPosXChange(index, value)}
+        handlePosYChange={value => this.handleCategoryPosYChange(index, value)}
+      ></PicturePartCategoryView>)}
       <Button variant="contained" onClick={() => this.handleAddCategoryClick()}>
         <AddBoxIcon></AddBoxIcon>
       </Button>
