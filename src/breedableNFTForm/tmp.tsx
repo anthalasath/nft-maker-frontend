@@ -11,7 +11,7 @@ interface PicturePartCategoryViewProps {
     handlePosYChange: (value: number) => void
     handleAddPictureUriClick: () => void
     handlePictureUriChange: (index: number, value: string) => void
-}
+ }
 
 function PicturePartCategoryView(props: PicturePartCategoryViewProps) {
     return <Paper>
