@@ -10,6 +10,8 @@ interface PicturePartCategoryViewProps {
   handleNameChange: (value: string) => void
   handlePosXChange: (value: number) => void
   handlePosYChange: (value: number) => void
+  handleAddPictureUriClick: () => void
+  handlePictureUriChange: (index: number, value: string) => void
 }
 
 function PicturePartCategoryView(props: PicturePartCategoryViewProps) {
@@ -17,6 +19,10 @@ function PicturePartCategoryView(props: PicturePartCategoryViewProps) {
     <TextField label="name" onChange={e => props.handleNameChange(e.target.value)}></TextField>
     <TextField label="posX" onChange={e => props.handlePosXChange(Number.parseInt(e.target.value))}></TextField>
     <TextField label="posY" onChange={e => props.handlePosYChange(Number.parseInt(e.target.value))}></TextField>
+    {props.picturePart.picturesUris.map((uri, index) => <TextField label="uri" onChange={e => props.handlePictureUriChange(index, e.target.value)}></TextField>)}
+    <Button variant="contained" onClick={() => props.handleAddPictureUriClick()}>
+      <AddBoxIcon></AddBoxIcon>
+    </Button>
   </Paper>
 }
 
@@ -68,26 +74,38 @@ class BreedableNFTForm extends React.Component<{}, BreedableNFTFormState> {
     });
   }
 
-  handleCategoryNameChange(index: number, value: string) {
-    this.handleCategoryChange(index, cat => {
+  handleCategoryNameChange(categoryIndex: number, value: string) {
+    this.handleCategoryChange(categoryIndex, cat => {
       cat.name = value;
     });
   }
 
-  handleCategoryPosXChange(index: number, value: number) {
-    this.handleCategoryChange(index, cat => {
+  handleCategoryPosXChange(categoryIndex: number, value: number) {
+    this.handleCategoryChange(categoryIndex, cat => {
       cat.position.x = value;
     });
   }
 
-  handleCategoryPosYChange(index: number, value: number) {
-    this.handleCategoryChange(index, cat => {
+  handleCategoryPosYChange(categoryIndex: number, value: number) {
+    this.handleCategoryChange(categoryIndex, cat => {
       cat.position.y = value;
     });
   }
 
-  handleCategoryChange(index: number, f: (value: PicturePartCategoryStruct) => void) {
-    const cat = this.state.categories[index];
+  handleAddCategoryPictureUriClick(categoryIndex: number) {
+    this.handleCategoryChange(categoryIndex, cat => {
+      cat.picturesUris.push("");
+    });
+  }
+
+  handleCategoryPictureUriChange(categoryIndex: number, pictureUriIndex: number, value: string) {
+    this.handleCategoryChange(categoryIndex, cat => {
+      cat.picturesUris[pictureUriIndex] = value;
+    });
+  }
+
+  handleCategoryChange(categoryIndex: number, f: (value: PicturePartCategoryStruct) => void) {
+    const cat = this.state.categories[categoryIndex];
     f(cat);
     this.setState({ categories: this.state.categories })
   }
@@ -114,11 +132,13 @@ class BreedableNFTForm extends React.Component<{}, BreedableNFTFormState> {
       </TextField>
       <TextField label="motherGeneChance" onChange={e => this.handleMotherGeneChanceChange(e.target.value)}>
       </TextField>
-      {this.state.categories.map((cat, index) => <PicturePartCategoryView
+      {this.state.categories.map((cat, categoryIndex) => <PicturePartCategoryView
         picturePart={cat}
-        handleNameChange={value => this.handleCategoryNameChange(index, value)}
-        handlePosXChange={value => this.handleCategoryPosXChange(index, value)}
-        handlePosYChange={value => this.handleCategoryPosYChange(index, value)}
+        handleNameChange={value => this.handleCategoryNameChange(categoryIndex, value)}
+        handlePosXChange={value => this.handleCategoryPosXChange(categoryIndex, value)}
+        handlePosYChange={value => this.handleCategoryPosYChange(categoryIndex, value)}
+        handleAddPictureUriClick={() => this.handleAddCategoryPictureUriClick(categoryIndex)}
+        handlePictureUriChange={(index, value) => this.handleCategoryPictureUriChange(categoryIndex, index, value)}
       ></PicturePartCategoryView>)}
       <Button variant="contained" onClick={() => this.handleAddCategoryClick()}>
         <AddBoxIcon></AddBoxIcon>
