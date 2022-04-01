@@ -209,6 +209,7 @@ export class BreedableNFTForm extends React.Component<BreedableNFTFormProps, Bre
             <Button variant="contained" onClick={() => this.handleAddCategoryClick()}>
                 <AddBoxIcon></AddBoxIcon>
             </Button>
+            <Button onClick={() => this.deployContract()}>Deploy</Button>
         </Stack>
     }
 }
