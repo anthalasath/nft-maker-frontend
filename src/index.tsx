@@ -4,6 +4,10 @@ import ReactDOM from 'react-dom';
 import { BigNumber } from "ethers";
 import AddBoxIcon from '@mui/icons-material/AddBox';
 import { PicturePartCategoryStruct } from "../nft-maker/typechain-types/contracts/BreedableNFT";
+import "@fontsource/roboto/300.css";
+import "@fontsource/roboto/400.css";
+import "@fontsource/roboto/500.css";
+import "@fontsource/roboto/700.css";
 
 interface PicturePartCategoryViewProps {
   picturePart: PicturePartCategoryStruct
@@ -19,7 +23,7 @@ function PicturePartCategoryView(props: PicturePartCategoryViewProps) {
     <TextField label="name" onChange={e => props.handleNameChange(e.target.value)}></TextField>
     <TextField label="posX" onChange={e => props.handlePosXChange(Number.parseInt(e.target.value))}></TextField>
     <TextField label="posY" onChange={e => props.handlePosYChange(Number.parseInt(e.target.value))}></TextField>
-    {props.picturePart.picturesUris.map((uri, index) => <TextField label="uri" onChange={e => props.handlePictureUriChange(index, e.target.value)}></TextField>)}
+    {props.picturePart.picturesUris.map((_, index) => <TextField label="uri" onChange={e => props.handlePictureUriChange(index, e.target.value)}></TextField>)}
     <Button variant="contained" onClick={() => props.handleAddPictureUriClick()}>
       <AddBoxIcon></AddBoxIcon>
     </Button>
