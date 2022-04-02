@@ -6,9 +6,10 @@ import "@fontsource/roboto/400.css";
 import "@fontsource/roboto/500.css";
 import "@fontsource/roboto/700.css";
 import { BreedableNFTForm } from './breedableNFTForm/breedableNFTForm';
-import { ethers, Signer } from "ethers";
+import { Contract, ethers, Signer } from "ethers";
 import { Web3Provider } from '@ethersproject/providers';
-
+import { Dashboard } from './dashboard/dashboard';
+import { getDeployerContractAddress } from './constants';
 interface ConnectWalletButtonProps {
   provider: Web3Provider
   handleWalletConnected: (signer: Signer) => void
@@ -61,13 +62,14 @@ class App extends React.Component<{}, AppState> {
   }
 
   handleWalletConnected(signer: Signer) {
-    this.setState({ signer })
+    this.setState({ signer });
   }
 
   render() {
-    const provider = new ethers.providers.Web3Provider(window.ethereum)
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
     const element = this.state.signer ?
-      <BreedableNFTForm signer={this.state.signer}></BreedableNFTForm> :
+      // <BreedableNFTForm signer={this.state.signer}></BreedableNFTForm> :\
+      <Dashboard signer={this.state.signer}></Dashboard> :
       <ConnectWalletButton provider={provider} handleWalletConnected={signer => this.handleWalletConnected(signer)}></ConnectWalletButton>
     return <CenteredPage element={element}></CenteredPage>
   }
