@@ -1,25 +1,27 @@
-import { Card, CardContent, Grid, List, ListItem, ListItemText } from '@mui/material';
+import { Button, Card, CardContent, Dialog, DialogTitle, Grid, List, ListItem, ListItemText, Modal } from '@mui/material';
 import { Contract, Signer } from 'ethers';
 import React from 'react';
 import { getDeployerContractAddress } from '../constants';
 import BreedableNFTDeployerArtifact from "../nft-maker/artifacts/contracts/BreedableNFTDeployer.sol/BreedableNFTDeployer.json";
 import BreedableNFTArtifact from "../nft-maker/artifacts/contracts/BreedableNFT.sol/BreedableNFT.json";
 import { BreedableNFT, BreedableNFTDeployer } from '../nft-maker/typechain-types';
+import { BreedableNFTForm } from '../breedableNFTForm/breedableNFTForm';
 
 export interface DashboardProps {
     signer: Signer;
 }
 interface DashboardState {
     deployedNftContracts: NftContractSummary[]
+    showingDeployNftForm: boolean
 }
-
 
 export class Dashboard extends React.Component<DashboardProps, DashboardState> {
 
     constructor(props: DashboardProps) {
         super(props);
         this.state = {
-            deployedNftContracts: []
+            deployedNftContracts: [],
+            showingDeployNftForm: false
         };
     }
 
@@ -46,10 +48,25 @@ export class Dashboard extends React.Component<DashboardProps, DashboardState> {
         }
     }
 
+    handleDeployButtonClick() {
+        this.setState({ showingDeployNftForm: true });
+    }
+
     render() {
-        return <Grid container>
-            {this.state.deployedNftContracts.map(s => <NftSummaryView key={s.address} summary={s}></NftSummaryView>)}
-        </Grid>
+        return <>
+            <Grid container>
+                {this.state.deployedNftContracts.map(s => <NftSummaryView key={s.address} summary={s}></NftSummaryView>)}
+            </Grid>
+            <Button variant="outlined" onClick={() => this.handleDeployButtonClick()}>
+                Deploy new NFT contract
+            </Button>
+            <Dialog
+                onClose={() => this.setState({ showingDeployNftForm: false })}
+                open={this.state.showingDeployNftForm}>
+                <DialogTitle>Deploy a new NFT collection</DialogTitle>
+                <BreedableNFTForm signer={this.props.signer}></BreedableNFTForm>
+            </Dialog>
+        </>
     }
 }
 

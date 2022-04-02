@@ -74,9 +74,7 @@ class App extends React.Component<{}, AppState> {
     if (this.state.signer) {
       return <Dashboard signer={this.state.signer}></Dashboard>;
     } else {
-      const element = this.state.signer ?
-        <BreedableNFTForm signer={this.state.signer}></BreedableNFTForm> :
-        <ConnectWalletButton provider={provider} handleWalletConnected={signer => this.handleWalletConnected(signer)}></ConnectWalletButton>
+      const element = <ConnectWalletButton provider={provider} handleWalletConnected={signer => this.handleWalletConnected(signer)}></ConnectWalletButton>
       return <CenteredPage element={element}></CenteredPage>
     }
   }

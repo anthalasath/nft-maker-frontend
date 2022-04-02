@@ -21,7 +21,7 @@ function PicturePartCategoryView(props: PicturePartCategoryViewProps) {
         <TextField label="name" onChange={e => props.handleNameChange(e.target.value)}></TextField>
         <TextField label="posX" onChange={e => props.handlePosXChange(Number.parseInt(e.target.value))}></TextField>
         <TextField label="posY" onChange={e => props.handlePosYChange(Number.parseInt(e.target.value))}></TextField>
-        {props.picturePart.picturesUris.map((_, index) => <TextField label="uri" onChange={e => props.handlePictureUriChange(index, e.target.value)}></TextField>)}
+        {props.picturePart.picturesUris.map((_, index) => <TextField key={index} label="uri" onChange={e => props.handlePictureUriChange(index, e.target.value)}></TextField>)}
         <Button variant="contained" onClick={() => props.handleAddPictureUriClick()}>
             <AddBoxIcon></AddBoxIcon>
         </Button>
@@ -183,7 +183,7 @@ export class BreedableNFTForm extends React.Component<BreedableNFTFormProps, Bre
             });
             await tx.wait();
             const eventFilter = deployer.filters.BreedableNFTDeployed(null, await this.props.signer.getAddress());
-            const latestBlockNumber = await this.props.signer.provider?.getBlockNumber(); 
+            const latestBlockNumber = await this.props.signer.provider?.getBlockNumber();
             if (!latestBlockNumber) {
                 this.setState({ deployedContractResult: DeployedContractResult.failure("Deployment probably succeeded, but could not get latest block number") })
                 return;
@@ -224,6 +224,7 @@ export class BreedableNFTForm extends React.Component<BreedableNFTFormProps, Bre
             <TextField label="motherGeneChance" onChange={e => this.handleMotherGeneChanceChange(e.target.value)}>
             </TextField>
             {this.state.categories.map((cat, categoryIndex) => <PicturePartCategoryView
+                key={`${cat.name}-${categoryIndex}`}
                 picturePart={cat}
                 handleNameChange={value => this.handleCategoryNameChange(categoryIndex, value)}
                 handlePosXChange={value => this.handleCategoryPosXChange(categoryIndex, value)}
