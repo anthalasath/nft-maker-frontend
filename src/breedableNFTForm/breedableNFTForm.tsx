@@ -1,9 +1,12 @@
 import { Alert, Button, Paper, Stack, TextField } from "@mui/material"
 import React from 'react';
-import { BigNumber, Signer, ContractFactory } from "ethers";
+import { BigNumber, Signer, ContractFactory, Contract } from "ethers";
 import AddBoxIcon from '@mui/icons-material/AddBox';
 import { PicturePartCategoryStruct } from "../nft-maker/typechain-types/contracts/BreedableNFT";
-import BreedableNFTArtifact from "../nft-maker/artifacts/contracts/BreedableNFT.sol/BreedableNFT.json"
+import BreedableNFTDeployerArtifact from "../nft-maker/artifacts/contracts/BreedableNFTDeployer.sol/BreedableNFTDeployer.json";
+import { BreedableNFTDeployer } from "../nft-maker/typechain-types/contracts/BreedableNFTDeployer";
+import { getEvent } from "../nft-maker/scripts/utils";
+import { getBreederContractAddress, getDeployerContractAddress } from "../constants";
 
 interface PicturePartCategoryViewProps {
     picturePart: PicturePartCategoryStruct
@@ -61,11 +64,11 @@ class DeployedContractResult {
 }
 
 export interface BreedableNFTFormState {
-    name?: string
-    symbol?: string
-    breedingFeeInWei?: BigNumber
-    fatherGeneChance?: number
-    motherGeneChance?: number
+    name: string
+    symbol: string
+    breedingFeeInWei: BigNumber
+    fatherGeneChance: number
+    motherGeneChance: number
     categories: PicturePartCategoryStruct[]
     deployedContractResult?: DeployedContractResult
 }
@@ -75,6 +78,11 @@ export class BreedableNFTForm extends React.Component<BreedableNFTFormProps, Bre
     constructor(props: BreedableNFTFormProps) {
         super(props);
         this.state = {
+            name: "",
+            symbol: "",
+            breedingFeeInWei: BigNumber.from(0),
+            fatherGeneChance: 0,
+            motherGeneChance: 0,
             categories: []
         }
     }
@@ -156,18 +164,36 @@ export class BreedableNFTForm extends React.Component<BreedableNFTFormProps, Bre
     }
 
     async deployContract() {
-        const BreedableNFT = new ContractFactory(BreedableNFTArtifact.abi, BreedableNFTArtifact.bytecode, this.props.signer);
+        const network = await this.props.signer.provider?.getNetwork();
+        if (!network) {
+            this.setState({ deployedContractResult: DeployedContractResult.failure("Could not get network") })
+            return;
+        }
+        const deployerContractAddress = getDeployerContractAddress(network);
+        const breederContractAddress = getBreederContractAddress(network);
+        const deployer = new Contract(deployerContractAddress, BreedableNFTDeployerArtifact.abi, this.props.signer) as BreedableNFTDeployer;
         try {
-            const breedableNFT = await BreedableNFT.deploy(
-                this.state.name,
-                this.state.symbol,
-                this.state.breedingFeeInWei,
-                this.state.fatherGeneChance,
-                this.state.motherGeneChance,
-                this.state.categories
-            );
-            await breedableNFT.deployed();
-            this.setState({ deployedContractResult: DeployedContractResult.success(breedableNFT.address) })
+            const tx = await deployer.deploy({
+                name: this.state.name,
+                symbol: this.state.symbol,
+                breedingFeeInWei: this.state.breedingFeeInWei,
+                fatherGeneChance: this.state.fatherGeneChance,
+                motherGeneChance: this.state.motherGeneChance,
+                categories: this.state.categories,
+                breederContractAddress: breederContractAddress
+            });
+            await tx.wait();
+            const eventFilter = deployer.filters.BreedableNFTDeployed(null, await this.props.signer.getAddress());
+            const latestBlockNumber = await this.props.signer.provider?.getBlockNumber(); 
+            if (!latestBlockNumber) {
+                this.setState({ deployedContractResult: DeployedContractResult.failure("Deployment probably succeeded, but could not get latest block number") })
+                return;
+            }
+            // TODO: Edge case with multiple deployments within same transaction ?
+            const events = await deployer.queryFilter(eventFilter, latestBlockNumber);
+            const event = events[0];
+
+            this.setState({ deployedContractResult: DeployedContractResult.success(event.args.contractAddress) })
         } catch (err: any) {
             this.setState({ deployedContractResult: DeployedContractResult.failure(err) })
         }
