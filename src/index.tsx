@@ -61,6 +61,10 @@ class App extends React.Component<{}, AppState> {
     this.state = {}
   }
 
+  componentDidMount() {
+    window.ethereum.on('chainChanged', () => window.location.reload());
+  }
+
   handleWalletConnected(signer: Signer) {
     this.setState({ signer });
   }
