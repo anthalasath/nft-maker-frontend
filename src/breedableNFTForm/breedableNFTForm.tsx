@@ -224,7 +224,7 @@ export class BreedableNFTForm extends React.Component<BreedableNFTFormProps, Bre
             <TextField label="motherGeneChance" onChange={e => this.handleMotherGeneChanceChange(e.target.value)}>
             </TextField>
             {this.state.categories.map((cat, categoryIndex) => <PicturePartCategoryView
-                key={`${cat.name}-${categoryIndex}`}
+                key={categoryIndex}
                 picturePart={cat}
                 handleNameChange={value => this.handleCategoryNameChange(categoryIndex, value)}
                 handlePosXChange={value => this.handleCategoryPosXChange(categoryIndex, value)}
