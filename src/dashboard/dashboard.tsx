@@ -135,6 +135,7 @@ interface NftContractSummaryViewProps {
     handleMintPromoClick: () => void
 }
 
+// TODO: check if contract owner before displaying the button
 function NftContractSummaryView(props: NftContractSummaryViewProps) {
     return <Grid item xs={4}>
         <Card>
