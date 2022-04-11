@@ -55,7 +55,7 @@ export class Dashboard extends React.Component<DashboardProps, DashboardState> {
     render() {
         return <>
             <Grid container>
-                {this.state.deployedNftContracts.map(s => <NftSummaryView key={s.address} summary={s}></NftSummaryView>)}
+                {this.state.deployedNftContracts.map(s => <NftContractSummaryView key={s.address} summary={s}></NftContractSummaryView>)}
             </Grid>
             <Button variant="outlined" onClick={() => this.handleDeployButtonClick()}>
                 Deploy new NFT contract
@@ -76,7 +76,7 @@ interface NftContractSummary {
     symbol: string
 }
 
-function NftSummaryView(props: { summary: NftContractSummary }) {
+function NftContractSummaryView(props: { summary: NftContractSummary }) {
     return <Grid item xs={4}>
         <Card>
             <CardContent>
