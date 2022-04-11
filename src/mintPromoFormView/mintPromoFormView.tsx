@@ -26,6 +26,7 @@ export class MintPromoFormView extends React.Component<MintPromoFormViewProps, M
         };
     }
 
+    // TODO: have this given in props
     async componentDidMount() {
         const contractName = await this.props.contract.name();
         const genesCount = await this.props.contract.getPicturePartCategoriesCount();
