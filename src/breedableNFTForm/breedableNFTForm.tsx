@@ -1,32 +1,11 @@
 import { Alert, Button, Paper, Stack, TextField } from "@mui/material"
 import React from 'react';
 import { BigNumber, Signer, ContractFactory, Contract } from "ethers";
-import AddBoxIcon from '@mui/icons-material/AddBox';
 import { PicturePartCategoryStruct } from "nft-maker/typechain-types/contracts/BreedableNFT";
 import BreedableNFTDeployerArtifact from "nft-maker/artifacts/contracts/BreedableNFTDeployer.sol/BreedableNFTDeployer.json";
 import { BreedableNFTDeployer } from "nft-maker/typechain-types/contracts/BreedableNFTDeployer";
 import { getBreederContractAddress, getDeployerContractAddress } from "../constants";
-
-interface PicturePartCategoryViewProps {
-    picturePart: PicturePartCategoryStruct
-    handleNameChange: (value: string) => void
-    handlePosXChange: (value: number) => void
-    handlePosYChange: (value: number) => void
-    handleAddPictureUriClick: () => void
-    handlePictureUriChange: (index: number, value: string) => void
-}
-
-function PicturePartCategoryView(props: PicturePartCategoryViewProps) {
-    return <Paper>
-        <TextField label="name" onChange={e => props.handleNameChange(e.target.value)}></TextField>
-        <TextField label="posX" onChange={e => props.handlePosXChange(Number.parseInt(e.target.value))}></TextField>
-        <TextField label="posY" onChange={e => props.handlePosYChange(Number.parseInt(e.target.value))}></TextField>
-        {props.picturePart.picturesUris.map((_, index) => <TextField key={index} label="uri" onChange={e => props.handlePictureUriChange(index, e.target.value)}></TextField>)}
-        <Button variant="contained" onClick={() => props.handleAddPictureUriClick()}>
-            <AddBoxIcon></AddBoxIcon>
-        </Button>
-    </Paper>
-}
+import { PicEditorView } from "../picEditor/picEditorView";
 
 export interface BreedableNFTFormProps {
     signer: Signer
@@ -223,18 +202,7 @@ export class BreedableNFTForm extends React.Component<BreedableNFTFormProps, Bre
             </TextField>
             <TextField label="motherGeneChance" onChange={e => this.handleMotherGeneChanceChange(e.target.value)}>
             </TextField>
-            {this.state.categories.map((cat, categoryIndex) => <PicturePartCategoryView
-                key={categoryIndex}
-                picturePart={cat}
-                handleNameChange={value => this.handleCategoryNameChange(categoryIndex, value)}
-                handlePosXChange={value => this.handleCategoryPosXChange(categoryIndex, value)}
-                handlePosYChange={value => this.handleCategoryPosYChange(categoryIndex, value)}
-                handleAddPictureUriClick={() => this.handleAddCategoryPictureUriClick(categoryIndex)}
-                handlePictureUriChange={(index, value) => this.handleCategoryPictureUriChange(categoryIndex, index, value)}
-            ></PicturePartCategoryView>)}
-            <Button variant="contained" onClick={() => this.handleAddCategoryClick()}>
-                <AddBoxIcon></AddBoxIcon>
-            </Button>
+            <PicEditorView></PicEditorView>
             <Button onClick={() => this.deployContract()}>Deploy</Button>
         </Stack>
     }
