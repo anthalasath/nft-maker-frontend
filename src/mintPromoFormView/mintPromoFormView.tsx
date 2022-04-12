@@ -2,7 +2,7 @@ import { Alert, AlertColor, Button, Stack, TextField } from '@mui/material';
 import { BigNumber, ContractReceipt } from 'ethers';
 import React, { useState } from 'react';
 import { minutes, seconds } from '../durations';
-import { BreedableNFT } from '../nft-maker/typechain-types';
+import { BreedableNFT } from 'nft-maker/typechain-types';
 import { AlertWithLifetimeView } from '../utils/alertWithLifetimeView';
 
 export interface MintPromoFormViewProps {

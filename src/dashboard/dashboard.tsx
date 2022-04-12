@@ -1,9 +1,9 @@
 import { Contract, Signer } from 'ethers';
 import React from 'react';
-import { BreedableNFT } from '../nft-maker/typechain-types';
+import { BreedableNFT } from 'nft-maker/typechain-types';
 import { DeployedNftsView } from './deployedNftsView';
 import { MintedNftsView } from './mintedNftsView';
-import BreedableNFTArtifact from "../nft-maker/artifacts/contracts/BreedableNFT.sol/BreedableNFT.json";
+import BreedableNFTArtifact from "nft-maker/artifacts/contracts/BreedableNFT.sol/BreedableNFT.json";
 import { BackButtonView } from '../utils/backButtonView';
 
 enum DashboardPageType {

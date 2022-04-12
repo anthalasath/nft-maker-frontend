@@ -1,8 +1,8 @@
 import { Button, Grid } from "@mui/material";
 import { ethers } from "ethers";
 import React from "react";
-import { BreedableNFT } from "../nft-maker/typechain-types";
-import { CreatureStruct } from "../nft-maker/typechain-types/contracts/BreedableNFT";
+import { BreedableNFT } from "nft-maker/typechain-types";
+import { CreatureStruct } from "nft-maker/typechain-types/contracts/BreedableNFT";
 import { BackButtonView } from "../utils/backButtonView";
 import { CreatureView } from "./creatureView";
 

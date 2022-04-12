@@ -1,7 +1,7 @@
 import { Button, Card, CardContent, Dialog, DialogTitle, Grid, Modal } from "@mui/material";
 import { BigNumber } from "ethers";
 import React from "react";
-import { CreatureStruct } from "../nft-maker/typechain-types/contracts/BreedableNFT";
+import { CreatureStruct } from "nft-maker/typechain-types/contracts/BreedableNFT";
 import { GenesView } from "./genesView";
 
 export interface CreatureViewProps {

@@ -4,9 +4,9 @@ import React from "react";
 import { BreedableNFTForm } from "../breedableNFTForm/breedableNFTForm";
 import { getDeployerContractAddress } from "../constants";
 import { MintPromoFormView } from "../mintPromoFormView/mintPromoFormView";
-import { BreedableNFT, BreedableNFTDeployer } from "../nft-maker/typechain-types";
-import BreedableNFTDeployerArtifact from "../nft-maker/artifacts/contracts/BreedableNFTDeployer.sol/BreedableNFTDeployer.json";
-import BreedableNFTArtifact from "../nft-maker/artifacts/contracts/BreedableNFT.sol/BreedableNFT.json";
+import { BreedableNFT, BreedableNFTDeployer } from "nft-maker/typechain-types";
+import BreedableNFTDeployerArtifact from "nft-maker/artifacts/contracts/BreedableNFTDeployer.sol/BreedableNFTDeployer.json";
+import BreedableNFTArtifact from "nft-maker/artifacts/contracts/BreedableNFT.sol/BreedableNFT.json";
 import { NftContractSummary, NftContractSummaryView } from "./nftContractSummaryView";
 
 enum DeployedNftsFormType {
