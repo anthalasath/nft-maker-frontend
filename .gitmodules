@@ -1,3 +1,0 @@
-[submodule "src/nft-maker"]
-	path = src/nft-maker
-	url = git@github.com:anthalasath/nft-maker.git
