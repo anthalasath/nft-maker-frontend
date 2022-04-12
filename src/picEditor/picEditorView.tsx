@@ -3,10 +3,10 @@ import { PicturePartCategoryStruct } from 'nft-maker/typechain-types/contracts/B
 import React from 'react';
 import { UploadedFolderView } from './uploadedFolder';
 import DriveFolderUploadIcon from '@mui/icons-material/DriveFolderUpload';
-import { UploadFolderFormView } from './uploadFolderForm';
+import { UploadedFolder, UploadFolderFormView } from './uploadFolderForm';
 
 export interface PicEditorViewState {
-    uploadedFolders: PicturePartCategoryStruct[]
+    uploadedFolders: UploadedFolder[]
     uploadFolderFormDisplayed: boolean
 }
 
@@ -24,15 +24,21 @@ export class PicEditorView extends React.Component<{}, PicEditorViewState> {
         this.setState({ uploadFolderFormDisplayed: true })
     }
 
+    handleConfirmClick(folder: UploadedFolder) {
+        const uploadedFolders = this.state.uploadedFolders;
+        uploadedFolders.push(folder);
+        this.setState({ uploadedFolders, uploadFolderFormDisplayed: false });
+    }
+
     render() {
         return <Stack>
-            {this.state.uploadedFolders.map(f => <UploadedFolderView key={f.name} folder={f}></UploadedFolderView>)}
+            {this.state.uploadedFolders.map(f => <UploadedFolderView key={f.category.name} folder={f}></UploadedFolderView>)}
             <Button onClick={() => this.handleAddFolder()}>
                 <DriveFolderUploadIcon></DriveFolderUploadIcon>
                 Add folder
             </Button>
             <Dialog open={this.state.uploadFolderFormDisplayed} onClose={() => this.setState({ uploadFolderFormDisplayed: false })}>
-                <UploadFolderFormView></UploadFolderFormView>
+                <UploadFolderFormView onConfirmClick={folder => this.handleConfirmClick(folder)}></UploadFolderFormView>
             </Dialog>
         </Stack>
     }
