@@ -127,7 +127,7 @@ export class BreedableNFTForm extends React.Component<BreedableNFTFormProps, Bre
         const args = cloneDeep(this.state.constructorArgs);
         console.log(`Cids: ${cids} cats: ${JSON.stringify(args.categories, null, 1)}`);
         args.categories = args.categories.map((cat, i) => {
-            cat.picturesUris = cids[i].map(cid => cid.toString())
+            cat.picturesUris = cids[i].map(cid => `ipfs://${cid.toString()}`);
             return cat;
         });
         const network = await this.props.signer.provider?.getNetwork();
@@ -136,7 +136,7 @@ export class BreedableNFTForm extends React.Component<BreedableNFTFormProps, Bre
             return;
         }
         args.breederContractAddress = getBreederContractAddress(network);
-        const deployedContractResult = await deployBreedableNFT(args, this.props.signer);
+        const deployedContractResult = await deployBreedableNFT(args, this.props.signer);   
         this.setState({ deployedContractResult });
     }
 
