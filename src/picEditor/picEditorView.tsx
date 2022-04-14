@@ -5,14 +5,18 @@ import { UploadedFolderView } from './uploadedFolder';
 import DriveFolderUploadIcon from '@mui/icons-material/DriveFolderUpload';
 import { UploadedFolder, UploadFolderFormView } from './uploadFolderForm';
 
+export interface PicEditorViewProps {
+    onFolderUploaded: (folder: UploadedFolder) => void
+}
+
 export interface PicEditorViewState {
     uploadedFolders: UploadedFolder[]
     uploadFolderFormDisplayed: boolean
 }
 
-export class PicEditorView extends React.Component<{}, PicEditorViewState> {
+export class PicEditorView extends React.Component<PicEditorViewProps, PicEditorViewState> {
 
-    constructor(props: {}) {
+    constructor(props: PicEditorViewProps) {
         super(props);
         this.state = {
             uploadedFolders: [],
@@ -28,6 +32,7 @@ export class PicEditorView extends React.Component<{}, PicEditorViewState> {
         const uploadedFolders = this.state.uploadedFolders;
         uploadedFolders.push(folder);
         this.setState({ uploadedFolders, uploadFolderFormDisplayed: false });
+        this.props.onFolderUploaded(folder);
     }
 
     render() {

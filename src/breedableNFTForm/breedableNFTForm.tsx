@@ -2,52 +2,22 @@ import { Alert, Button, Paper, Stack, TextField } from "@mui/material"
 import React from 'react';
 import { BigNumber, Signer, ContractFactory, Contract } from "ethers";
 import { PicturePartCategoryStruct } from "nft-maker/typechain-types/contracts/BreedableNFT";
-import BreedableNFTDeployerArtifact from "nft-maker/artifacts/contracts/BreedableNFTDeployer.sol/BreedableNFTDeployer.json";
-import { BreedableNFTDeployer } from "nft-maker/typechain-types/contracts/BreedableNFTDeployer";
-import { getBreederContractAddress, getDeployerContractAddress } from "../constants";
+
 import { PicEditorView } from "../picEditor/picEditorView";
+import { BreedableNFTConstructorArgsStruct } from "nft-maker/typechain-types/contracts/BreedableNFTDeployer";
+import { deployBreedableNFT, DeployedContractResult } from "../utils/deployBreedableNFT";
+import { store } from "../storage/ipfs";
+import { cloneDeep, flatten } from "lodash";
+import { UploadedFolder } from "../picEditor/uploadFolderForm";
+import { getBreederContractAddress } from "../constants";
 
 export interface BreedableNFTFormProps {
     signer: Signer
 }
 
-class DeployedContractResult {
-    private _address?: string
-    private _error?: any
-
-    public get isSuccess() {
-        return !!this._address;
-    }
-
-    public get address() {
-        return this._address;
-    }
-
-    public get error() {
-        return this._error;
-    }
-
-    private constructor(address?: string, error?: any) {
-        this._address = address;
-        this._error = error;
-    }
-
-    static success(contractAddress: string) {
-        return new DeployedContractResult(contractAddress, undefined);
-    }
-
-    static failure(deployError: any) {
-        return new DeployedContractResult(undefined, deployError);
-    }
-}
-
 export interface BreedableNFTFormState {
-    name: string
-    symbol: string
-    breedingFeeInWei: BigNumber
-    fatherGeneChance: number
-    motherGeneChance: number
-    categories: PicturePartCategoryStruct[]
+    constructorArgs: BreedableNFTConstructorArgsStruct
+    pictureFilesByCategoryIndex: FileList[]
     deployedContractResult?: DeployedContractResult
 }
 
@@ -56,42 +26,46 @@ export class BreedableNFTForm extends React.Component<BreedableNFTFormProps, Bre
     constructor(props: BreedableNFTFormProps) {
         super(props);
         this.state = {
-            name: "",
-            symbol: "",
-            breedingFeeInWei: BigNumber.from(0),
-            fatherGeneChance: 0,
-            motherGeneChance: 0,
-            categories: []
+            constructorArgs: {
+                name: "",
+                symbol: "",
+                breedingFeeInWei: BigNumber.from(0),
+                fatherGeneChance: 0,
+                motherGeneChance: 0,
+                categories: [],
+                breederContractAddress: ""
+            },
+            pictureFilesByCategoryIndex: []
         }
     }
 
     handleNameChange(value: string) {
-        this.setState({
-            name: value
+        this.handleCtorArgsChange(args => {
+            args.name = value;
         });
     }
 
     handleSymbolChange(value: string) {
-        this.setState({
-            symbol: value
+        this.handleCtorArgsChange(args => {
+            args.symbol = value;
         });
     }
 
     handleBreedingFeeInWeiChange(value: string) {
-        this.setState({
-            breedingFeeInWei: BigNumber.from(value)
+        this.handleCtorArgsChange(args => {
+            args.breedingFeeInWei = BigNumber.from(value)
         });
     }
 
     handleFatherGeneChanceChange(value: string) {
-        this.setState({
-            fatherGeneChance: Number.parseInt(value)
+        this.handleCtorArgsChange(args => {
+            args.fatherGeneChance = Number.parseInt(value);
         });
     }
 
     handleMotherGeneChanceChange(value: string) {
-        this.setState({
-            motherGeneChance: Number.parseInt(value)
+        this.handleCtorArgsChange(args => {
+            args.motherGeneChance = Number.parseInt(value);
         });
     }
 
@@ -126,63 +100,52 @@ export class BreedableNFTForm extends React.Component<BreedableNFTFormProps, Bre
     }
 
     handleCategoryChange(categoryIndex: number, f: (value: PicturePartCategoryStruct) => void) {
-        const cat = this.state.categories[categoryIndex];
-        f(cat);
-        this.setState({ categories: this.state.categories })
-    }
-
-    handleAddCategoryClick() {
-        const categories = this.state.categories;
-        categories.push({
-            name: "",
-            position: { x: 0, y: 0 },
-            picturesUris: []
+        this.handleCtorArgsChange(args => {
+            const cat = args.categories[categoryIndex];
+            f(cat);
         });
-        this.setState({ categories: categories });
     }
 
-    async deployContract() {
+    handleFolderUploaded(folder: UploadedFolder) {
+        const constructorArgs = this.state.constructorArgs;
+        constructorArgs.categories.push(folder.category);
+        const pictureFilesByCategoryIndex = this.state.pictureFilesByCategoryIndex;
+        pictureFilesByCategoryIndex.push(folder.files);
+        this.setState({ constructorArgs, pictureFilesByCategoryIndex });
+    }
+
+    handleCtorArgsChange(updater: (args: BreedableNFTConstructorArgsStruct) => void) {
+        const constructorArgs = this.state.constructorArgs;
+        updater(constructorArgs);
+        this.setState({ constructorArgs });
+    }
+
+
+    async submitNftCollection() {
+        // TODO progress bar
+        const cids = await Promise.all(this.state.pictureFilesByCategoryIndex.map(filesOfCat => store(filesOfCat)));
+        const args = cloneDeep(this.state.constructorArgs);
+        console.log(`Cids: ${cids} cats: ${JSON.stringify(args.categories, null, 1)}`);
+        args.categories = args.categories.map((cat, i) => {
+            cat.picturesUris = cids[i].map(cid => cid.toString())
+            return cat;
+        });
         const network = await this.props.signer.provider?.getNetwork();
         if (!network) {
-            this.setState({ deployedContractResult: DeployedContractResult.failure("Could not get network") })
+            this.setState({ deployedContractResult: new Error("Could not get network")});
             return;
         }
-        const deployerContractAddress = getDeployerContractAddress(network);
-        const breederContractAddress = getBreederContractAddress(network);
-        const deployer = new Contract(deployerContractAddress, BreedableNFTDeployerArtifact.abi, this.props.signer) as BreedableNFTDeployer;
-        try {
-            const tx = await deployer.deploy({
-                name: this.state.name,
-                symbol: this.state.symbol,
-                breedingFeeInWei: this.state.breedingFeeInWei,
-                fatherGeneChance: this.state.fatherGeneChance,
-                motherGeneChance: this.state.motherGeneChance,
-                categories: this.state.categories,
-                breederContractAddress: breederContractAddress
-            });
-            await tx.wait();
-            const eventFilter = deployer.filters.BreedableNFTDeployed(null, await this.props.signer.getAddress());
-            const latestBlockNumber = await this.props.signer.provider?.getBlockNumber();
-            if (!latestBlockNumber) {
-                this.setState({ deployedContractResult: DeployedContractResult.failure("Deployment probably succeeded, but could not get latest block number") })
-                return;
-            }
-            // TODO: Edge case with multiple deployments within same transaction ?
-            const events = await deployer.queryFilter(eventFilter, latestBlockNumber);
-            const event = events[0];
-
-            this.setState({ deployedContractResult: DeployedContractResult.success(event.args.contractAddress) })
-        } catch (err: any) {
-            this.setState({ deployedContractResult: DeployedContractResult.failure(err) })
-        }
+        args.breederContractAddress = getBreederContractAddress(network);
+        const deployedContractResult = await deployBreedableNFT(args, this.props.signer);
+        this.setState({ deployedContractResult });
     }
 
     renderAlert() {
         if (this.state.deployedContractResult) {
-            if (this.state.deployedContractResult.isSuccess) {
-                return <Alert severity="success">Contract deployed at {this.state.deployedContractResult.address}</Alert>
-            } else {
-                return <Alert severity="error">Could not deploy contract. Error: {this.state.deployedContractResult.error}</Alert>
+            if (this.state.deployedContractResult instanceof String) {
+                return <Alert severity="success">Contract deployed at {this.state.deployedContractResult}</Alert>
+            } else if (this.state.deployedContractResult instanceof Error) {
+                return <Alert severity="error">Could not deploy contract. Error: {this.state.deployedContractResult.message}</Alert>
             }
         } else {
             return null;
@@ -202,8 +165,8 @@ export class BreedableNFTForm extends React.Component<BreedableNFTFormProps, Bre
             </TextField>
             <TextField label="motherGeneChance" onChange={e => this.handleMotherGeneChanceChange(e.target.value)}>
             </TextField>
-            <PicEditorView></PicEditorView>
-            <Button onClick={() => this.deployContract()}>Deploy</Button>
+            <PicEditorView onFolderUploaded={folder => this.handleFolderUploaded(folder)}></PicEditorView>
+            <Button onClick={() => this.submitNftCollection()}>Deploy</Button>
         </Stack>
     }
 }
