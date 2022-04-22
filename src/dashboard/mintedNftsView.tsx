@@ -35,7 +35,7 @@ export class MintedNftsView extends React.Component<MintedNftsViewProps, MintedN
         return <>
             <Grid container>
                 {this.state.creatures.map(c => {
-                    return <CreatureView key={c.tokenId.toString()} creature={c}></CreatureView>
+                    return <CreatureView key={c.tokenId.toString()} breedableNFT={this.props.contract} creature={c}></CreatureView>
                 })}
             </Grid>
         </>
