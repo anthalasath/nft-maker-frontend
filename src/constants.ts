@@ -13,5 +13,5 @@ function getAddresses(): any {
     return Addresses;
 }
 
-export const MAX_IMAGE_WIDTH = 1920;
-export const MAX_IMAGE_HEIGHT = 1080;
+export const MAX_IMAGE_WIDTH = 800;
+export const MAX_IMAGE_HEIGHT = 800;
