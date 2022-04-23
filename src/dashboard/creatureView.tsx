@@ -87,8 +87,8 @@ export function NFTPicView(props: NFTPicViewProps) {
         const images: HTMLImageElement[] = [];
         for (let i = 0; i < props.picturesByLayer.length; i++) {
             const uri = props.picturesByLayer[i].uri;
-            const dx = BigNumber.from(props.picturesByLayer[i].position.x).div(10).toNumber();
-            const dy = BigNumber.from(props.picturesByLayer[i].position.y).div(10).toNumber();
+            const dx = BigNumber.from(props.picturesByLayer[i].position.x).div(4).toNumber();
+            const dy = BigNumber.from(props.picturesByLayer[i].position.y).div(4).toNumber();
             addImage(uri, ctx, dx, dy, images);
         }
     }, [props.picturesByLayer]);

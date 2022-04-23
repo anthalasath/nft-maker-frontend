@@ -123,7 +123,7 @@ export class BreedableNFTForm extends React.Component<BreedableNFTFormProps, Bre
 
     async submitNftCollection() {
         // TODO progress bar
-        const cids = await Promise.all(this.state.pictureFilesByCategoryIndex.map(filesOfCat => store(filesOfCat)));
+        const cids = await store(this.state.pictureFilesByCategoryIndex);
         const args = cloneDeep(this.state.constructorArgs);
         args.categories = args.categories.map((cat, i) => {
             cat.picturesUris = cids[i].map(cid => `ipfs://${cid.toString()}`);
