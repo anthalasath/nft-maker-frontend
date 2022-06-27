@@ -3,6 +3,7 @@ import { BigNumber } from "ethers";
 import React, { useEffect, useRef } from "react";
 import { CreatureStruct, PictureStruct, BreedableNFT } from "nft-maker/typechain-types/contracts/BreedableNFT";
 import { GenesView } from "./genesView";
+import { getFilesContents } from "../storage/ipfs";
 
 export interface CreatureViewProps {
     breedableNFT: BreedableNFT
@@ -69,27 +70,27 @@ export interface NFTPicViewProps {
 }
 
 
-
 export function NFTPicView(props: NFTPicViewProps) {
-
-    function addImage(src: string, ctx: any, dx: number, dy: number, images: HTMLImageElement[]) {
+    function addImage(src: string, ctx: any, dx: number, dy: number) {
         const image = new Image();
         image.src = src;
+        console.log(src);
         image.onload = () => {
             ctx.drawImage(image, dx, dy, 50, 50);
         }
-        images.push(image);
+        image.onerror = e => {
+            console.error(`Error loading image ${e}`);
+        }
     }
 
     React.useEffect(() => {
         let c: any = document.getElementById("myCanvas");
         let ctx = c.getContext("2d");
-        const images: HTMLImageElement[] = [];
         for (let i = 0; i < props.picturesByLayer.length; i++) {
             const uri = props.picturesByLayer[i].uri;
             const dx = BigNumber.from(props.picturesByLayer[i].position.x).div(4).toNumber();
             const dy = BigNumber.from(props.picturesByLayer[i].position.y).div(4).toNumber();
-            addImage(uri, ctx, dx, dy, images);
+            addImage(uri, ctx, dx, dy); 
         }
     }, [props.picturesByLayer]);
 

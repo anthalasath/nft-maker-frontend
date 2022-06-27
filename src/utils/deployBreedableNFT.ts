@@ -15,7 +15,6 @@ export async function deployBreedableNFT(args: BreedableNFTConstructorArgsStruct
     const deployerContractAddress = getDeployerContractAddress(network);
     const deployer = new Contract(deployerContractAddress, BreedableNFTDeployerArtifact.abi, signer) as BreedableNFTDeployer;
     try {
-        console.log(JSON.stringify(args, null, 1));
         const tx = await deployer.deploy(args);
         await tx.wait();
         const eventFilter = deployer.filters.BreedableNFTDeployed(null, await signer.getAddress());

@@ -6,10 +6,11 @@ import { PicturePartCategoryStruct } from "nft-maker/typechain-types/contracts/B
 import { PicEditorView } from "../picEditor/picEditorView";
 import { BreedableNFTConstructorArgsStruct } from "nft-maker/typechain-types/contracts/BreedableNFTDeployer";
 import { deployBreedableNFT, DeployedContractResult } from "../utils/deployBreedableNFT";
-import { store } from "../storage/ipfs";
+import { createClient, store } from "../storage/ipfs";
 import { cloneDeep, flatten } from "lodash";
 import { UploadedFolder } from "../picEditor/uploadFolderForm";
 import { getBreederContractAddress } from "../constants";
+import { create } from 'ipfs-core';
 
 export interface BreedableNFTFormProps {
     signer: Signer
@@ -123,7 +124,8 @@ export class BreedableNFTForm extends React.Component<BreedableNFTFormProps, Bre
 
     async submitNftCollection() {
         // TODO progress bar
-        const cids = await store(this.state.pictureFilesByCategoryIndex);
+        const ipfs = await createClient();
+        const cids = await store(ipfs, this.state.pictureFilesByCategoryIndex);
         const args = cloneDeep(this.state.constructorArgs);
         args.categories = args.categories.map((cat, i) => {
             cat.picturesUris = cids[i].map(cid => `ipfs://${cid.toString()}`);
